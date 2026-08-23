@@ -170,16 +170,19 @@ data:
     augmentation:
       gaussian_noise_std: 0.0       # Std of Gaussian noise added to normalized inputs (0=disabled)
 
-    # Training-anchor filter (table mode). When peak_min is set, TRAINING
-    # uses only anchors whose target window contains at least one point of
-    # `variable` at or above peak_min, in raw (denormalized) units.
-    # Validation/test anchors are never filtered, and normalization stats
-    # keep describing the full training split, so metrics stay comparable
-    # across sweeps. Used by the storm-only sweep (server_ap_storm:
-    # ap30 >= 48 = Kp 5, NOAA G1).
+    # Training-anchor filter (table mode), on the TARGET window of
+    # `variable` in raw (denormalized) units. Validation/test anchors are
+    # never filtered and normalization stats keep describing the full
+    # training split, so metrics stay comparable across sweeps.
+    #   peak_min: keep anchors with >= 1 point at/above it (storm-only;
+    #             server_ap_storm uses ap30 >= 48 = Kp 5, NOAA G1)
+    #   peak_max: keep anchors with NO point at/above it (quiet-only;
+    #             server_ap_quiet uses 48 — exact complement of storm)
+    # Set at most one; null = no filtering.
     train_filter:
       variable: "ap30"
-      peak_min: null                # null = no filtering
+      peak_min: null
+      peak_max: null
 
     # Target variable(s) for regression
     target_variables:

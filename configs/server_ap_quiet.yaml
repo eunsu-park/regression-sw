@@ -1,0 +1,24 @@
+# Quiet-only variant of the direct ap sweep (server_ap) — the complement of
+# server_ap_storm.
+#
+# Identical io grid, models, loss, seed and validation split, but the
+# TRAINING set keeps only anchors whose target window has NO point of
+# ap30 >= 48 (Kp < 5 throughout the window). With the same threshold the
+# storm and quiet training sets partition the full split exactly.
+# Validation stays the full index and normalization stats are shared, so
+# results are directly comparable with the ap_ and ap_storm_ sweeps.
+#
+# Experiment naming: runners prefix experiments from this profile with
+# "ap_quiet_" (e.g. ap_quiet_in12h_out6h_gnn_transformer).
+#
+# Launch (GPU server):
+#   ./train.sh --config-name server_ap_quiet --max-jobs 4
+
+defaults:
+  - server_ap
+  - _self_
+
+data:
+  timeseries:
+    train_filter:
+      peak_max: 48.0
