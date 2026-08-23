@@ -84,24 +84,24 @@ done
 # Other profiles (local/dev/...) keep the legacy un-prefixed names.
 # =============================================================================
 case "$CONFIG_NAME" in
-    server_ap|mac_ap)    EXP_PREFIX="ap_" ;;
-    server_ap_storm)     EXP_PREFIX="ap_storm_" ;;
-    server_ap_recursive) EXP_PREFIX="ap_recursive_" ;;
-    server_hp|mac_hp)    EXP_PREFIX="hp_" ;;
-    *)                   EXP_PREFIX="" ;;
+    server_ap|mac_ap)                     EXP_PREFIX="ap_" ;;
+    server_ap_storm|mac_ap_storm)         EXP_PREFIX="ap_storm_" ;;
+    server_ap_quiet|mac_ap_quiet)         EXP_PREFIX="ap_quiet_" ;;
+    server_ap_recursive|mac_ap_recursive) EXP_PREFIX="ap_recursive_" ;;
+    server_hp|mac_hp)                     EXP_PREFIX="hp_" ;;
+    *)                                    EXP_PREFIX="" ;;
 esac
 
-# The recursive variant is trained on the 6-h output chunk only (longer
-# leads come from rollout at evaluation time; chunk length 1-6 h) and, per
-# the 2026-08 run scope, only on the {6h,12h,18h,1d} input lengths.
-if [[ "$CONFIG_NAME" == "server_ap_recursive" && -z "$FILTER" ]]; then
-    FILTER="in(6h|12h|18h|1d)_out[1-6]h$"
-fi
+# All 2026-08 ap sweeps (direct / storm / quiet / recursive, server or Mac)
+# share the short-horizon io grid: input {6h,12h,18h,1d} x output {1h..6h}.
+case "$CONFIG_NAME" in
+    server_ap|mac_ap|server_ap_storm|mac_ap_storm|server_ap_quiet|mac_ap_quiet|server_ap_recursive|mac_ap_recursive)
+        SHORT_GRID=true ;;
+    *)  SHORT_GRID=false ;;
+esac
 
-# The 2026-08 direct ap sweep is the short-horizon grid: input {6h,12h,18h,1d}
-# x output {1h..6h} (24 io x 14 models = 336). Pass an explicit --filter to
-# override (e.g. for the legacy long-horizon grid).
-if [[ ("$CONFIG_NAME" == "server_ap" || "$CONFIG_NAME" == "mac_ap" || "$CONFIG_NAME" == "server_ap_storm") && -z "$FILTER" ]]; then
+# Default io filter for short-grid profiles (explicit --filter overrides).
+if $SHORT_GRID && [[ -z "$FILTER" ]]; then
     FILTER="in(6h|12h|18h|1d)_out[1-6]h$"
 fi
 

@@ -9,6 +9,7 @@ Two sweeps on the GPU server, both ap30-side only (no hp30), both with
 | A — direct, short-horizon | `server_ap` | in {6h,12h,18h,1d} × out {1h..6h} × 14 models = **336**, names `ap_{io}_{model}` | ap30 (1 ch) | solar_wind_weighted |
 | B — recursive | `server_ap_recursive` | in {6h,12h,18h,1d} × out {1h..6h} × 14 models = **336**, names `ap_recursive_{io}_{model}` | all 22 input channels | mse |
 | C — storm-only | `server_ap_storm` | same grid as A = **336**, names `ap_storm_{io}_{model}` | ap30 (1 ch) | solar_wind_weighted |
+| D — quiet-only | `server_ap_quiet` | same grid as A = **336**, names `ap_quiet_{io}_{model}` | ap30 (1 ch) | solar_wind_weighted |
 
 Sweep C (`configs/server_ap_storm.yaml`, added 2026-08-19) trains on only
 the anchors whose target window peaks at ap30 ≥ 48 (Kp ≥ 5, G1) — 4.6 %
@@ -16,6 +17,16 @@ the anchors whose target window peaks at ap30 ≥ 48 (Kp ≥ 5, G1) — 4.6 %
 window-aware per io config. Validation stays the full index and the
 normalization stats are shared, so C is directly comparable with A.
 Launch: `./train.sh --config-name server_ap_storm --max-jobs 4`.
+
+Sweep D (`configs/server_ap_quiet.yaml`, added 2026-08-23) is the exact
+complement of C: training keeps only anchors whose target window has NO
+point of ap30 ≥ 48 (`train_filter.peak_max`), so C ∪ D = the full
+training split (verified on the table: 3,549 + 73,036 = 76,585 for
+out1h). Launch: `./train.sh --config-name server_ap_quiet --max-jobs 4`.
+
+Mac fallback (GPU server down): `mac_ap`, `mac_ap_storm`, `mac_ap_quiet`,
+`mac_ap_recursive` are the same sweeps on MPS with Mac roots and
+`attention.create_plots: false`; use `--max-jobs 2 --skip-existing`.
 
 Sweep A (revised 2026-08-12) is the short-horizon grid: 20 new io configs
 `in{6h,12h,18h,1d}_out{1..5}h` plus the existing `*_out6h` four. `train.sh`

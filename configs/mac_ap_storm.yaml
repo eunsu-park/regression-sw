@@ -1,0 +1,22 @@
+# Mac (Apple Silicon / MPS) environment for server_ap_storm: same sweep
+# definition, only the device and absolute roots differ. ~/Projects/GeoIndex
+# is the cloud-synced results tree shared with the GPU server — never run
+# the same experiment name on both machines at once.
+#
+# Prereq:  conda activate geoindex
+# Launch:  ./train.sh --config-name mac_ap_storm --max-jobs 2 --skip-existing
+
+defaults:
+  - server_ap_storm
+  - _self_
+
+environment:
+  device: "mps"
+  data_root: "/Users/eunsupark/Projects/GeoIndex/datasets"
+  save_root: "/Users/eunsupark/Projects/GeoIndex/results"
+  num_workers: 2
+
+# Batch analysis on the Mac: never render attention plots (one run's
+# plots.zip reached 7 GB in the 2026-08 backfill).
+attention:
+  create_plots: false

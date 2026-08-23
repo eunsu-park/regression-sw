@@ -99,11 +99,20 @@ fi
 #   without the SAVE_ROOT env var; the env var still overrides if set.
 # =============================================================================
 case "$CONFIG_NAME" in
-    server_ap|mac_ap)    EXP_PREFIX="ap_" ;;
-    server_ap_storm)     EXP_PREFIX="ap_storm_" ;;
-    server_ap_recursive) EXP_PREFIX="ap_recursive_" ;;
-    server_hp|mac_hp)    EXP_PREFIX="hp_" ;;
-    *)                   EXP_PREFIX="" ;;
+    server_ap|mac_ap)                     EXP_PREFIX="ap_" ;;
+    server_ap_storm|mac_ap_storm)         EXP_PREFIX="ap_storm_" ;;
+    server_ap_quiet|mac_ap_quiet)         EXP_PREFIX="ap_quiet_" ;;
+    server_ap_recursive|mac_ap_recursive) EXP_PREFIX="ap_recursive_" ;;
+    server_hp|mac_hp)                     EXP_PREFIX="hp_" ;;
+    *)                                    EXP_PREFIX="" ;;
+esac
+
+# All 2026-08 ap sweeps (direct / storm / quiet / recursive, server or Mac)
+# share the short-horizon io grid: input {6h,12h,18h,1d} x output {1h..6h}.
+case "$CONFIG_NAME" in
+    server_ap|mac_ap|server_ap_storm|mac_ap_storm|server_ap_quiet|mac_ap_quiet|server_ap_recursive|mac_ap_recursive)
+        SHORT_GRID=true ;;
+    *)  SHORT_GRID=false ;;
 esac
 EXTRA_ARGS=()
 if [[ "$CONFIG_NAME" == "server_hp" || "$CONFIG_NAME" == "mac_hp" ]]; then
@@ -125,7 +134,7 @@ IO_CONFIGS=(
 # Both 2026-08 ap sweeps (direct and recursive) use the short-horizon grid:
 # input {6h,12h,18h,1d} x output {1h..6h}. The legacy grid above stays for
 # server_hp (hp results exist on it) and the local/dev profiles.
-if [[ "$CONFIG_NAME" == "server_ap" || "$CONFIG_NAME" == "mac_ap" || "$CONFIG_NAME" == "server_ap_storm" || "$CONFIG_NAME" == "server_ap_recursive" ]]; then
+if $SHORT_GRID; then
     IO_CONFIGS=()
     for _in in in6h in12h in18h in1d; do
         for _out in out1h out2h out3h out4h out5h out6h; do
