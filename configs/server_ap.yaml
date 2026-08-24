@@ -42,6 +42,11 @@ mcd:
   num_mc_samples: 100
   create_plots: false
 
+# Batch sweeps: never render per-anchor attention plots (a single run's
+# attention plots.zip reached 7 GB on the 2026-08 Mac backfill).
+attention:
+  create_plots: false
+
 # =============================================================================
 # Data (table mode, ap30 index)
 # Window offsets (input_start/end, target_start/end) come from the +io= group.
